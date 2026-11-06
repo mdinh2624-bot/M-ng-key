@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MĐĂNG - Premium Key Management System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            50: '#fffdf0',
+                            100: '#fefab8',
+                            200: '#fdf380',
+                            300: '#fce748',
+                            400: '#f7d31c',
+                            500: '#e5b809',
+                            600: '#c29304',
+                            700: '#9b6e05',
+                            800: '#7e560c',
+                            900: '#684510',
+                            accent: '#D4AF37',
+                            light: '#F3E5AB',
+                            dark: '#AA7C11'
+                        },
+                        dark: {
+                            900: '#0A0B0E',
+                            800: '#12141A',
+                            700: '#1C1F26',
+                            600: '#2A2E39',
+                            500: '#3A3F4D'
+                        }
+                    },
+                    backgroundImage: {
+                        'gold-gradient': 'linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%)',
+                        'gold-gradient-soft': 'linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(170, 124, 17, 0.05) 100%)',
+                        'dark-card': 'linear-gradient(180deg, rgba(28, 31, 38, 0.7) 0%, rgba(18, 20, 26, 0.8) 100%)',
+                    },
+                    boxShadow: {
+                        'gold-glow': '0 0 25px -5px rgba(212, 175, 55, 0.3)',
+                        'gold-glow-lg': '0 0 40px 0px rgba(212, 175, 55, 0.4)',
+                        'inner-gold': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.2)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0B0E;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A2E39;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+
+        /* Metallic text effect */
+        .text-gold-metallic {
+            background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(18, 20, 26, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .glass-panel-hover:hover {
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 20px -5px rgba(212, 175, 55, 0.2);
+        }
+
+        /* Pulse gold ring */
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+        .animate-gold-pulse {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-dark-900 text-slate-200 font-sans min-h-screen flex flex-col selection:bg-gold-500 selection:text-dark-900">
+
+    <!-- Top Glow Deco -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-gold-accent/10 blur-[140px] pointer-events-none rounded-full z-0"></div>
+
+    <!-- Notification Toast Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm pointer-events-none"></div>
+
+    <!-- Modal Backdrop -->
+    <div id="modalBackdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 hidden transition-opacity duration-300 opacity-0 flex items-center justify-center p-4">
+        <!-- Modal Content Container -->
+        <div id="modalContainer" class="w-full max-w-lg glass-panel rounded-2xl border border-gold-accent/30 shadow-gold-glow p-6 transform scale-95 transition-transform duration-300 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-gold-accent transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div class="relative z-10 flex-1 flex flex-col max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- HEADER BANNER -->
+        <header class="glass-panel rounded-2xl p-4 sm:p-6 mb-8 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-gold-accent/10 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                <!-- Brand -->
+                <div class="flex items-center gap-4 text-center md:text-left">
+                    <div class="w-14 h-14 rounded-2xl bg-gold-gradient p-0.5 shadow-gold-glow flex items-center justify-center shrink-0">
+                        <div class="w-full h-full bg-dark-900 rounded-[14px] flex items-center justify-center">
+                            <i class="fa-solid fa-crown text-gold-accent text-2xl"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 justify-center md:justify-start">
+                            <h1 class="text-3xl font-extrabold font-serif tracking-wider text-gold-metallic">MĐĂNG</h1>
+                            <span class="text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded bg-gold-accent/10 text-gold-accent border border-gold-accent/30">VIP System</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Hệ Thống Quản Lý Key Bản Quyền & Giấy Phép Cao Cấp</p>
+                    </div>
+                </div>
+
+                <!-- Header Quick Actions -->
+                <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+                    <button onclick="openCreateModal()" class="flex-1 md:flex-none px-5 py-2.5 rounded-xl bg-gold-gradient text-dark-900 font-bold hover:brightness-110 transition-all transform active:scale-95 shadow-gold-glow flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-key"></i>
+                        <span>Tạo Key Mới</span>
+                    </button>
+                    <button onclick="exportData('json')" title="Xuất dữ liệu JSON" class="p-2.5 rounded-xl glass-panel text-slate-300 hover:text-gold-accent hover:border-gold-accent/40 transition-all">
+                        <i class="fa-solid fa-file-export"></i>
+                    </button>
+                    <button onclick="importDataTrigger()" title="Nhập dữ liệu JSON" class="p-2.5 rounded-xl glass-panel text-slate-300 hover:text-gold-accent hover:border-gold-accent/40 transition-all">
+                        <i class="fa-solid fa-file-import"></i>
+                    </button>
+                    <input type="file" id="importInput" class="hidden" accept=".json" onchange="handleImport(event)">
+                </div>
+            </div>
+        </header>
+
+        <!-- STATS CARDS -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <!-- Total Keys -->
+            <div class="glass-panel glass-panel-hover p-5 rounded-2xl transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Tổng Số Key</span>
+                    <div class="w-9 h-9 rounded-xl bg-gold-accent/10 flex items-center justify-center text-gold-accent">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span id="statTotal" class="text-3xl font-extrabold text-white">0</span>
+                    <span class="text-xs text-slate-400">Khóa đã tạo</span>
+                </div>
+            </div>
+
+            <!-- Active Keys -->
+            <div class="glass-panel glass-panel-hover p-5 rounded-2xl transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Đang Hoạt Động</span>
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span id="statActive" class="text-3xl font-extrabold text-emerald-400">0</span>
+                    <span class="text-xs text-emerald-500/80 font-medium" id="statActivePercent">0% tổng số</span>
+                </div>
+            </div>
+
+            <!-- Expired Keys -->
+            <div class="glass-panel glass-panel-hover p-5 rounded-2xl transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Đã Hết Hạn</span>
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span id="statExpired" class="text-3xl font-extrabold text-amber-400">0</span>
+                    <span class="text-xs text-amber-500/80 font-medium">Hết thời hạn</span>
+                </div>
+            </div>
+
+            <!-- Revoked Keys -->
+            <div class="glass-panel glass-panel-hover p-5 rounded-2xl transition-all">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Đã Thu Hồi</span>
+                    <div class="w-9 h-9 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-400">
+                        <i class="fa-solid fa-ban"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span id="statRevoked" class="text-3xl font-extrabold text-rose-400">0</span>
+                    <span class="text-xs text-rose-500/80 font-medium">Bị khóa / Hủy</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTROLS & SEARCH BAR -->
+        <div class="glass-panel p-4 rounded-2xl mb-6 flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <!-- Search input -->
+            <div class="relative w-full lg:w-96">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Tìm kiếm theo Key, Ghi chú hoặc Khách hàng..." class="w-full bg-dark-900/80 border border-slate-700/60 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-gold-accent/60 transition-all">
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
+                <!-- Status Filter -->
+                <div class="flex items-center gap-2 bg-dark-900/60 border border-slate-700/60 rounded-xl p-1 text-xs">
+                    <button onclick="setFilter('all')" id="filter-all" class="px-3 py-1.5 rounded-lg filter-btn bg-gold-accent text-dark-900 font-bold transition-all">Tất cả</button>
+                    <button onclick="setFilter('active')" id="filter-active" class="px-3 py-1.5 rounded-lg filter-btn text-slate-400 hover:text-white transition-all">Kích hoạt</button>
+                    <button onclick="setFilter('expired')" id="filter-expired" class="px-3 py-1.5 rounded-lg filter-btn text-slate-400 hover:text-white transition-all">Hết hạn</button>
+                    <button onclick="setFilter('revoked')" id="filter-revoked" class="px-3 py-1.5 rounded-lg filter-btn text-slate-400 hover:text-white transition-all">Thu hồi</button>
+                </div>
+
+                <!-- Export CSV button -->
+                <button onclick="exportData('csv')" class="px-3 py-2 rounded-xl border border-slate-700 hover:border-gold-accent/40 bg-dark-900/60 text-slate-300 text-xs font-semibold flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-file-csv text-emerald-400"></i>
+                    <span>Xuất CSV</span>
+                </button>
+
+                <!-- Bulk Delete -->
+                <button onclick="clearExpiredKeys()" class="px-3 py-2 rounded-xl border border-rose-500/20 hover:border-rose-500/50 bg-rose-500/10 text-rose-400 text-xs font-semibold flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Dọn key hết hạn</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- TABLE SECTION -->
+        <div class="glass-panel rounded-2xl overflow-hidden flex-1 flex flex-col border border-gold-accent/15">
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-800 bg-dark-800/80 text-xs font-semibold uppercase text-slate-400 tracking-wider">
+                            <th class="p-4 pl-6">Mã Key Bản Quyền</th>
+                            <th class="p-4">Khách Hàng / Ghi Chú</th>
+                            <th class="p-4">Ngày Tạo</th>
+                            <th class="p-4">Thời Hạn / Hết Hạn</th>
+                            <th class="p-4">Trạng Thái</th>
+                            <th class="p-4 text-right pr-6">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="keyTableBody" class="divide-y divide-slate-800/60">
+                        <!-- Rows rendered dynamically -->
+                    </tbody>
+                </table>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden py-16 flex flex-col items-center justify-center text-center">
+                    <div class="w-16 h-16 rounded-full bg-dark-800 border border-slate-700 flex items-center justify-center text-slate-500 mb-4">
+                        <i class="fa-solid fa-key-skeleton text-2xl"></i>
+                    </div>
+                    <h3 class="text-base font-semibold text-slate-300 mb-1">Không tìm thấy dữ liệu</h3>
+                    <p class="text-xs text-slate-500 max-w-sm mb-4">Chưa có khóa nào được tạo hoặc không có kết quả phù hợp với bộ lọc hiện tại.</p>
+                    <button onclick="openCreateModal()" class="px-4 py-2 rounded-xl bg-gold-accent/10 border border-gold-accent/30 text-gold-accent hover:bg-gold-accent hover:text-dark-900 text-xs font-bold transition-all">
+                        + Tạo Key Đầu Tiên
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table Footer Pagination/Info -->
+            <div class="p-4 border-t border-slate-800 bg-dark-800/40 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
+                <div id="tableInfo">Hiển thị 0 / 0 bản ghi</div>
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-500">Hệ thống MĐĂNG Engine v2.5</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="mt-8 text-center text-xs text-slate-500 py-4 border-t border-slate-800/60">
+            <p>© 2026 MĐĂNG Management System. Bật chế độ Bảo mật Cao Cấp.</p>
+        </footer>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // APP STATE
+        let keys = [];
+        let currentFilter = 'all';
+        let searchQuery = '';
+
+        // INITIALIZATION
+        window.onload = function() {
+            loadKeys();
+            render();
+            // Interval to re-check expired keys every minute
+            setInterval(() => {
+                checkExpirations();
+                render();
+            }, 60000);
+        };
+
+        // STORAGE FUNCTIONS
+        function loadKeys() {
+            const stored = localStorage.getItem('mdang_keys_data');
+            if (stored) {
+                try {
+                    keys = JSON.parse(stored);
+                } catch(e) {
+                    console.error("Lỗi đọc dữ liệu từ localStorage", e);
+                    keys = [];
+                }
+            } else {
+                // Initial sample data if empty
+                keys = [
+                    {
+                        id: 'md_' + Date.now() + '_1',
+                        key: 'MDANG-8899-VIPX-GOLD',
+                        client: 'Công ty Công Nghệ VIP',
+                        createdAt: new Date().toISOString(),
+                        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+                        status: 'active',
+                        note: 'Gói doanh nghiệp 1 năm'
+                    },
+                    {
+                        id: 'md_' + Date.now() + '_2',
+                        key: 'MDANG-1102-DEMO-TEST',
+                        client: 'Nguyễn Văn A',
+                        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                        expiresAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // expired yesterday
+                        status: 'expired',
+                        note: 'Key dùng thử 5 ngày'
+                    }
+                ];
+                saveKeys();
+            }
+            checkExpirations();
+        }
+
+        function saveKeys() {
+            localStorage.setItem('mdang_keys_data', JSON.stringify(keys));
+        }
+
+        function checkExpirations() {
+            const now = new Date();
+            let changed = false;
+            keys.forEach(k => {
+                if (k.status === 'active' && k.expiresAt) {
+                    if (new Date(k.expiresAt) < now) {
+                        k.status = 'expired';
+                        changed = true;
+                    }
+                }
+            });
+            if (changed) saveKeys();
+        }
+
+        // RENDER LOGIC
+        function render() {
+            const tbody = document.getElementById('keyTableBody');
+            const emptyState = document.getElementById('emptyState');
+            tbody.innerHTML = '';
+
+            // Filter logic
+            let filtered = keys.filter(k => {
+                // Status Filter
+                if (currentFilter !== 'all' && k.status !== currentFilter) return false;
+                
+                // Search Query
+                if (searchQuery.trim() !== '') {
+                    const q = searchQuery.toLowerCase();
+                    const matchKey = k.key.toLowerCase().includes(q);
+                    const matchClient = (k.client || '').toLowerCase().includes(q);
+                    const matchNote = (k.note || '').toLowerCase().includes(q);
+                    return matchKey || matchClient || matchNote;
+                }
+                return true;
+            });
+
+            // Update stats counters
+            updateStats();
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                filtered.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-800/40 transition-colors group border-b border-slate-800/40";
+                    
+                    // Status Badge HTML
+                    let statusBadge = '';
+                    if (item.status === 'active') {
+                        statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Kích hoạt</span>`;
+                    } else if (item.status === 'expired') {
+                        statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>Hết hạn</span>`;
+                    } else {
+                        statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>Thu hồi</span>`;
+                    }
+
+                    // Format Dates
+                    const createdStr = formatDate(item.createdAt);
+                    const expireStr = item.expiresAt ? formatDate(item.expiresAt) : 'Vĩnh viễn';
+                    const timeLeft = getTimeLeftText(item.expiresAt, item.status);
+
+                    tr.innerHTML = `
+                        <td class="p-4 pl-6 font-mono font-medium text-slate-200">
+                            <div class="flex items-center gap-2">
+                                <span class="select-all">${escapeHtml(item.key)}</span>
+                                <button onclick="copyToClipboard('${escapeHtml(item.key)}')" title="Sao chép Key" class="text-slate-500 hover:text-gold-accent transition-colors p-1 opacity-0 group-hover:opacity-100">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <div class="font-semibold text-slate-200">${escapeHtml(item.client || 'Khách vô danh')}</div>
+                            <div class="text-xs text-slate-400">${escapeHtml(item.note || 'Không có ghi chú')}</div>
+                        </td>
+                        <td class="p-4 text-xs text-slate-400">
+                            ${createdStr}
+                        </td>
+                        <td class="p-4 text-xs">
+                            <div class="text-slate-300 font-medium">${expireStr}</div>
+                            <div class="text-[11px] text-slate-500 mt-0.5">${timeLeft}</div>
+                        </td>
+                        <td class="p-4">
+                            ${statusBadge}
+                        </td>
+                        <td class="p-4 pr-6 text-right space-x-1">
+                            <button onclick="openExtendModal('${item.id}')" title="Gia hạn Key" class="p-2 rounded-lg bg-dark-900 border border-slate-700/60 text-slate-300 hover:text-gold-accent hover:border-gold-accent/40 transition-all text-xs">
+                                <i class="fa-solid fa-hourglass-plus"></i>
+                            </button>
+                            ${item.status === 'active' 
+                                ? `<button onclick="toggleRevokeKey('${item.id}')" title="Thu hồi Key" class="p-2 rounded-lg bg-dark-900 border border-slate-700/60 text-amber-400 hover:bg-amber-500/10 hover:border-amber-500/40 transition-all text-xs">
+                                    <i class="fa-solid fa-ban"></i>
+                                   </button>`
+                                : `<button onclick="toggleRevokeKey('${item.id}')" title="Khôi phục Key" class="p-2 rounded-lg bg-dark-900 border border-slate-700/60 text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all text-xs">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                   </button>`
+                            }
+                            <button onclick="confirmDeleteKey('${item.id}')" title="Xóa Key" class="p-2 rounded-lg bg-dark-900 border border-slate-700/60 text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/40 transition-all text-xs">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('tableInfo').innerText = `Hiển thị ${filtered.length} / ${keys.length} khóa bản quyền`;
+        }
+
+        function updateStats() {
+            const total = keys.length;
+            const active = keys.filter(k => k.status === 'active').length;
+            const expired = keys.filter(k => k.status === 'expired').length;
+            const revoked = keys.filter(k => k.status === 'revoked').length;
+
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statActive').innerText = active;
+            document.getElementById('statExpired').innerText = expired;
+            document.getElementById('statRevoked').innerText = revoked;
+
+            const activePct = total > 0 ? Math.round((active / total) * 100) : 0;
+            document.getElementById('statActivePercent').innerText = `${activePct}% tổng số`;
+        }
+
+        // MODAL HANDLERS
+        function openModal(htmlContent) {
+            const backdrop = document.getElementById('modalBackdrop');
+            const container = document.getElementById('modalContainer');
+            document.getElementById('modalBody').innerHTML = htmlContent;
+            
+            backdrop.classList.remove('hidden');
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                container.classList.remove('scale-95');
+                container.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            const backdrop = document.getElementById('modalBackdrop');
+            const container = document.getElementById('modalContainer');
+            
+            backdrop.classList.add('opacity-0');
+            container.classList.remove('scale-100');
+            container.classList.add('scale-95');
+            
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+            }, 300);
+        }
+
+        // CREATE KEY DIALOG
+        function openCreateModal() {
+            const html = `
+                <div class="mb-5">
+                    <h2 class="text-xl font-bold font-serif text-gold-metallic flex items-center gap-2">
+                        <i class="fa-solid fa-key"></i> Khởi Tạo Key Bản Quyền Mới
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Cấu hình các tham số để tạo khóa kích hoạt hệ thống MĐĂNG.</p>
+                </div>
+
+                <form onsubmit="handleCreateKey(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Tiền tố (Prefix)</label>
+                        <input type="text" id="keyPrefix" value="MDANG" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-gold-accent">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Số Khối (Blocks)</label>
+                            <select id="keyBlocks" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-gold-accent">
+                                <option value="3">3 Khối (XXXX-XXXX-XXXX)</option>
+                                <option value="4" selected>4 Khối (XXXX-XXXX-XXXX-XXXX)</option>
+                                <option value="5">5 Khối (XXXX-XXXX-XXXX-XXXX-XXXX)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Thời Hạn</label>
+                            <select id="keyDuration" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-gold-accent">
+                                <option value="1">1 Ngày (Dùng thử)</option>
+                                <option value="7">7 Ngày (1 Tuần)</option>
+                                <option value="30" selected>30 Ngày (1 Tháng)</option>
+                                <option value="90">90 Ngày (3 Tháng)</option>
+                                <option value="365">365 Ngày (1 Năm)</option>
+                                <option value="0">Vĩnh Viễn (Lifetime)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Tên Khách Hàng / Đơn Vị</label>
+                        <input type="text" id="keyClient" placeholder="Ví dụ: Anh Nam - TP.HCM" required class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-gold-accent">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Ghi Chú Bổ Sung</label>
+                        <input type="text" id="keyNote" placeholder="Ví dụ: Bản quyền bản VIP v2" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-gold-accent">
+                    </div>
+
+                    <div class="pt-3 flex items-center justify-end gap-3">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-semibold transition-all">Hủy</button>
+                        <button type="submit" class="px-5 py-2 rounded-xl bg-gold-gradient text-dark-900 font-bold hover:brightness-110 text-xs shadow-gold-glow transition-all">Tạo Key Ngay</button>
+                    </div>
+                </form>
+            `;
+            openModal(html);
+        }
+
+        function handleCreateKey(e) {
+            e.preventDefault();
+            const prefix = document.getElementById('keyPrefix').value.trim() || 'MDANG';
+            const blocks = parseInt(document.getElementById('keyBlocks').value);
+            const durationDays = parseInt(document.getElementById('keyDuration').value);
+            const client = document.getElementById('keyClient').value.trim();
+            const note = document.getElementById('keyNote').value.trim();
+
+            const generatedKey = generateRandomKey(prefix, blocks);
+            
+            let expiresAt = null;
+            if (durationDays > 0) {
+                const exp = new Date();
+                exp.setDate(exp.getDate() + durationDays);
+                expiresAt = exp.toISOString();
+            }
+
+            const newObj = {
+                id: 'md_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                key: generatedKey,
+                client: client,
+                createdAt: new Date().toISOString(),
+                expiresAt: expiresAt,
+                status: 'active',
+                note: note
+            };
+
+            keys.unshift(newObj);
+            saveKeys();
+            render();
+            closeModal();
+            showToast('Đã tạo thành công Key mới: ' + generatedKey, 'success');
+        }
+
+        function generateRandomKey(prefix, blocksCount) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let parts = [prefix.toUpperCase()];
+            for (let b = 1; b < blocksCount; b++) {
+                let chunk = '';
+                for (let i = 0; i < 4; i++) {
+                    chunk += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                parts.push(chunk);
+            }
+            return parts.join('-');
+        }
+
+        // EXTEND KEY MODAL
+        function openExtendModal(id) {
+            const item = keys.find(k => k.id === id);
+            if (!item) return;
+
+            const html = `
+                <div class="mb-5">
+                    <h2 class="text-xl font-bold font-serif text-gold-metallic flex items-center gap-2">
+                        <i class="fa-solid fa-hourglass-plus"></i> Gia Hạn Key Bản Quyền
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Cập nhật thời gian sử dụng cho Key <span class="text-gold-accent font-mono">${escapeHtml(item.key)}</span></p>
+                </div>
+
+                <form onsubmit="handleExtendKey(event, '${item.id}')" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Cộng thêm thời gian</label>
+                        <select id="extendDays" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-gold-accent">
+                            <option value="7">+ 7 Ngày</option>
+                            <option value="30" selected>+ 30 Ngày (1 Tháng)</option>
+                            <option value="90">+ 90 Ngày (3 Tháng)</option>
+                            <option value="365">+ 365 Ngày (1 Năm)</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-3 flex items-center justify-end gap-3">
+                        <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-semibold transition-all">Hủy</button>
+                        <button type="submit" class="px-5 py-2 rounded-xl bg-gold-gradient text-dark-900 font-bold hover:brightness-110 text-xs shadow-gold-glow transition-all">Xác Nhận Gia Hạn</button>
+                    </div>
+                </form>
+            `;
+            openModal(html);
+        }
+
+        function handleExtendKey(e, id) {
+            e.preventDefault();
+            const days = parseInt(document.getElementById('extendDays').value);
+            const item = keys.find(k => k.id === id);
+            if (!item) return;
+
+            let baseDate = new Date();
+            // If active and expires in future, add to current expiration
+            if (item.expiresAt && new Date(item.expiresAt) > baseDate) {
+                baseDate = new Date(item.expiresAt);
+            }
+            baseDate.setDate(baseDate.getDate() + days);
+
+            item.expiresAt = baseDate.toISOString();
+            item.status = 'active'; // Reactivate if expired
+
+            saveKeys();
+            render();
+            closeModal();
+            showToast(`Đã gia hạn thêm ${days} ngày cho Key thành công!`, 'success');
+        }
+
+        // ACTIONS
+        function toggleRevokeKey(id) {
+            const item = keys.find(k => k.id === id);
+            if (!item) return;
+
+            if (item.status === 'active') {
+                item.status = 'revoked';
+                showToast('Đã thu hồi quyền sử dụng Key', 'warning');
+            } else {
+                item.status = 'active';
+                showToast('Đã khôi phục trạng thái hoạt động', 'success');
+            }
+            saveKeys();
+            render();
+        }
+
+        function confirmDeleteKey(id) {
+            const item = keys.find(k => k.id === id);
+            if (!item) return;
+
+            const html = `
+                <div class="text-center p-2">
+                    <div class="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto mb-4 text-xl">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Xác Nhận Xóa Key</h3>
+                    <p class="text-xs text-slate-400 mb-6">Bạn có chắc chắn muốn xóa vĩnh viễn Key <span class="text-slate-200 font-mono">${escapeHtml(item.key)}</span>? Thao tác này không thể hoàn tác.</p>
+                    
+                    <div class="flex items-center justify-center gap-3">
+                        <button onclick="closeModal()" class="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-semibold transition-all">Hủy Bỏ</button>
+                        <button onclick="executeDeleteKey('${item.id}')" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition-all">Xóa Vĩnh Viễn</button>
+                    </div>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function executeDeleteKey(id) {
+            keys = keys.filter(k => k.id !== id);
+            saveKeys();
+            render();
+            closeModal();
+            showToast('Đã xóa Key khỏi hệ thống', 'info');
+        }
+
+        function clearExpiredKeys() {
+            const initialCount = keys.length;
+            keys = keys.filter(k => k.status !== 'expired');
+            const removed = initialCount - keys.length;
+            
+            saveKeys();
+            render();
+            showToast(`Đã dọn dẹp ${removed} Key hết hạn!`, 'info');
+        }
+
+        // FILTER & SEARCH
+        function setFilter(filterType) {
+            currentFilter = filterType;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = 'px-3 py-1.5 rounded-lg filter-btn text-slate-400 hover:text-white transition-all';
+            });
+            const activeBtn = document.getElementById(`filter-${filterType}`);
+            if (activeBtn) {
+                activeBtn.className = 'px-3 py-1.5 rounded-lg filter-btn bg-gold-accent text-dark-900 font-bold transition-all';
+            }
+            render();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value;
+            render();
+        }
+
+        // EXPORT & IMPORT
+        function exportData(type) {
+            if (keys.length === 0) {
+                showToast('Không có dữ liệu để xuất!', 'warning');
+                return;
+            }
+
+            if (type === 'json') {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(keys, null, 2));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", `mdang_keys_${new Date().toISOString().slice(0,10)}.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+                showToast('Đã xuất dữ liệu JSON thành công', 'success');
+            } else if (type === 'csv') {
+                let csvContent = "data:text/csv;charset=utf-8,";
+                csvContent += "ID,Key,Client,Created At,Expires At,Status,Note\n";
+                
+                keys.forEach(k => {
+                    const row = [
+                        `"${k.id}"`,
+                        `"${k.key}"`,
+                        `"${(k.client || '').replace(/"/g, '""')}"`,
+                        `"${k.createdAt}"`,
+                        `"${k.expiresAt || 'Lifetime'}"`,
+                        `"${k.status}"`,
+                        `"${(k.note || '').replace(/"/g, '""')}"`
+                    ].join(",");
+                    csvContent += row + "\n";
+                });
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `mdang_keys_${new Date().toISOString().slice(0,10)}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                showToast('Đã xuất tập tin CSV thành công', 'success');
+            }
+        }
+
+        function importDataTrigger() {
+            document.getElementById('importInput').click();
+        }
+
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        keys = imported;
+                        saveKeys();
+                        render();
+                        showToast(`Đã nhập thành công ${imported.length} Key!`, 'success');
+                    } else {
+                        showToast('Định dạng tệp JSON không hợp lệ', 'error');
+                    }
+                } catch(err) {
+                    showToast('Lỗi khi đọc file JSON', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // UTILITIES
+        function copyToClipboard(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast('Đã sao chép Key vào khay nhớ tạm!', 'info');
+        }
+
+        function formatDate(isoString) {
+            if (!isoString) return '';
+            const d = new Date(isoString);
+            return d.toLocaleDateString('vi-VN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getTimeLeftText(expiresAtIso, status) {
+            if (status === 'revoked') return 'Đã khóa';
+            if (!expiresAtIso) return 'Không giới hạn';
+
+            const now = new Date();
+            const exp = new Date(expiresAtIso);
+            const diffMs = exp - now;
+
+            if (diffMs <= 0) return 'Đã hết hạn sử dụng';
+
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+            if (diffDays > 0) {
+                return `Còn ${diffDays} ngày ${diffHours} giờ`;
+            } else {
+                return `Còn ${diffHours} giờ`;
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        // TOAST SYSTEM
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let borderClass = 'border-gold-accent/40';
+            let icon = '<i class="fa-solid fa-circle-info text-gold-accent"></i>';
+
+            if (type === 'success') {
+                borderClass = 'border-emerald-500/50';
+                icon = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+            } else if (type === 'warning') {
+                borderClass = 'border-amber-500/50';
+                icon = '<i class="fa-solid fa-triangle-exclamation text-amber-400"></i>';
+            } else if (type === 'error') {
+                borderClass = 'border-rose-500/50';
+                icon = '<i class="fa-solid fa-circle-xmark text-rose-400"></i>';
+            }
+
+            toast.className = `glass-panel ${borderClass} shadow-lg rounded-xl p-3.5 flex items-center gap-3 text-xs text-slate-200 pointer-events-auto transform translate-x-full transition-all duration-300`;
+            toast.innerHTML = `
+                ${icon}
+                <span class="flex-1 font-medium">${escapeHtml(message)}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
